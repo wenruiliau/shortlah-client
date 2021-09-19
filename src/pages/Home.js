@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 
-function App() {
+function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [urlToShorten, setUrlToShorten] = useState('');
   const [alias, setAlias] = useState('');
@@ -137,4 +137,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
