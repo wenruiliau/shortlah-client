@@ -85,7 +85,7 @@ function Home() {
             borderRadius={8}
           >
             <Box textAlign="center">
-              <Heading>Shorten It</Heading>
+              <Heading>Short Lah</Heading>
             </Box>
 
             <Box my={4} textAlign="left">
