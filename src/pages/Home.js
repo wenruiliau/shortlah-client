@@ -1,6 +1,5 @@
 import { useState, useEffect, React } from 'react';
 import {
-  ChakraProvider,
   Box,
   VStack,
   FormControl,
@@ -10,11 +9,10 @@ import {
   FormLabel,
   InputGroup,
   Heading,
-  theme,
   Code,
   Link,
 } from '@chakra-ui/react';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
+import { ColorModeSwitcher } from '../ColorModeSwitcher';
 
 function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +20,7 @@ function Home() {
   const [alias, setAlias] = useState('');
 
   const [slug, setSlug] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     // fetch('/base')
@@ -40,7 +39,7 @@ function Home() {
     setAlias(event.target.value);
   };
 
-  // TODO: Abstract API call to parent container
+  // TODO: Handle the error
   const handleSubmit = event => {
     event.preventDefault();
     setIsLoading(true);
@@ -59,10 +58,19 @@ function Home() {
       };
 
       fetch('/create', requestOptions)
-        .then(res => res.json())
-        .then(data => setSlug(data.slug))
+        .then(res => {
+          if (res.status === 409) {
+            setErrorMessage('In Use');
+            throw new Error('HTTP status ' + res.status);
+          }
+          return res.json();
+        })
+        .then(data => {
+          setErrorMessage('');
+          console.log('data', data);
+          setSlug(data.slug);
+        })
         .catch(error => console.log(error));
-
       setIsLoading(false);
     } catch (error) {
       console.log('error', error);
@@ -71,69 +79,67 @@ function Home() {
   };
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Box
-              maxW="lg"
-              overflow="hidden"
-              borderWidth="1px"
-              p={8}
-              borderRadius={8}
-            >
-              <Box textAlign="center">
-                <Heading>Shorten It</Heading>
-              </Box>
-
-              <Box my={4} textAlign="left">
-                <form onSubmit={handleSubmit}>
-                  <FormControl id="url" mt={6} isRequired>
-                    <FormLabel>URL to shorten</FormLabel>
-                    <InputGroup size="md">
-                      <Input placeholder="URL" onChange={handleUrlChange} />
-                    </InputGroup>
-                  </FormControl>
-
-                  <FormControl id="alias" mt={6}>
-                    <FormLabel>Alias for URL</FormLabel>
-                    <InputGroup size="md">
-                      <Input
-                        placeholder="Optional"
-                        onChange={handleAliasChange}
-                      />
-                    </InputGroup>
-                  </FormControl>
-
-                  {/* TODO: set isLoading state */}
-                  <Button
-                    width="full"
-                    mt={4}
-                    type="submit"
-                    isLoading={isLoading}
-                  >
-                    Submit
-                  </Button>
-                </form>
-              </Box>
+    <Box textAlign="center" fontSize="xl">
+      <Grid minH="100vh" p={3}>
+        <ColorModeSwitcher justifySelf="flex-end" />
+        <VStack spacing={8}>
+          <Box
+            maxW="lg"
+            minW={'40%'}
+            overflow="hidden"
+            borderWidth="1px"
+            p={8}
+            borderRadius={8}
+          >
+            <Box textAlign="center">
+              <Heading>Shorten It</Heading>
             </Box>
-            {slug && (
-              <Box>
-                Shortened URL is{' '}
-                <Code>
-                  <Link href={window.location.href + slug} isExternal>
-                    {window.location.href}
-                    {slug}
-                  </Link>
-                </Code>
-                .
-              </Box>
-            )}
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
+
+            <Box my={4} textAlign="left">
+              <form onSubmit={handleSubmit}>
+                <FormControl id="url" mt={6} isRequired>
+                  <FormLabel>URL to shorten</FormLabel>
+                  <InputGroup size="md">
+                    <Input placeholder="URL" onChange={handleUrlChange} />
+                  </InputGroup>
+                </FormControl>
+
+                <FormControl id="alias" mt={6}>
+                  <FormLabel>Alias for URL</FormLabel>
+                  <InputGroup size="md">
+                    <Input
+                      placeholder="Optional"
+                      onChange={handleAliasChange}
+                    />
+                  </InputGroup>
+                </FormControl>
+
+                {/* TODO: set isLoading state */}
+                <Button width="full" mt={4} type="submit" isLoading={isLoading}>
+                  Submit
+                </Button>
+              </form>
+            </Box>
+          </Box>
+          {slug && (
+            <Box>
+              Shortened URL is{' '}
+              <Code>
+                <Link href={window.location.href + slug} isExternal>
+                  {window.location.href}
+                  {slug}
+                </Link>
+              </Code>
+              .
+            </Box>
+          )}
+
+          {errorMessage && (
+            <Box>Oops, URL alias is in use. Please try again!</Box>
+          )}
+        </VStack>
+      </Grid>
+    </Box>
   );
 }
 
