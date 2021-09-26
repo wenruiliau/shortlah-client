@@ -7,7 +7,7 @@ function RedirectedPage(props) {
   const [errorMessage, setErrorMessage] = useState('');
   const slug = props.match.params.slug;
 
-  const backendUrl = process.env.BACKEND_URL || '';
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
   useEffect(() => {
     fetch(`${backendUrl}/api/${slug}`)
