@@ -1,4 +1,4 @@
-import { useState, useEffect, React } from 'react';
+import { useState, React } from 'react';
 import {
   Box,
   VStack,
@@ -19,17 +19,11 @@ function Home() {
   const [urlToShorten, setUrlToShorten] = useState('');
   const [alias, setAlias] = useState('');
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  console.log('backend', backendUrl);
+
   const [slug, setSlug] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    // fetch('/base')
-    //   .then(res => res.json())
-    //   .then(response => {
-    //     setMessage(response.message);
-    //   })
-    //   .catch(error => console.log(error));
-  });
 
   const handleUrlChange = event => {
     setUrlToShorten(event.target.value);
@@ -57,7 +51,7 @@ function Home() {
         }),
       };
 
-      fetch('/create', requestOptions)
+      fetch(`${backendUrl}/api/create`, requestOptions)
         .then(res => {
           if (res.status === 409) {
             setErrorMessage('In Use');
@@ -67,7 +61,6 @@ function Home() {
         })
         .then(data => {
           setErrorMessage('');
-          console.log('data', data);
           setSlug(data.slug);
         })
         .catch(error => console.log(error));
