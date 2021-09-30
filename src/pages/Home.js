@@ -20,7 +20,6 @@ function Home() {
   const [alias, setAlias] = useState('');
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-  console.log('backend', backendUrl);
 
   const [slug, setSlug] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -55,6 +54,8 @@ function Home() {
         .then(res => {
           if (res.status === 409) {
             setErrorMessage('In Use');
+            setSlug('');
+            setIsLoading(false);
             throw new Error('HTTP status ' + res.status);
           }
           return res.json();
@@ -62,11 +63,12 @@ function Home() {
         .then(data => {
           setErrorMessage('');
           setSlug(data.slug);
+          setIsLoading(false);
         })
         .catch(error => console.log(error));
-      setIsLoading(false);
     } catch (error) {
       console.log('error', error);
+      setSlug('');
       setIsLoading(false);
     }
   };
@@ -107,7 +109,6 @@ function Home() {
                   </InputGroup>
                 </FormControl>
 
-                {/* TODO: set isLoading state */}
                 <Button width="full" mt={4} type="submit" isLoading={isLoading}>
                   Submit
                 </Button>
